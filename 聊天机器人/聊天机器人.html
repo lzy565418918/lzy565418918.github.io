@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+  <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+  <title>聊天机器人</title>
+  <style>
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h3>九天雷霆双脚deng</h3>
+      <img src="img/person001.png" alt="icon" />
+    </div>
+    <div class="main">
+      <ul class="talk_list" style="top: 0px;"></ul>
+      <div class="drag_bar" style="display: none;">
+        <div class="drager ui-draggable ui-draggable-handle" style="display: none; height: 412.628px;"></div>
+      </div>
+    </div>
+    <div class="footer">
+      <img src="img/person002.png" alt="icon" />
+      <input type="text" placeholder="说的什么吧..." class="input_txt" />
+      <input type="button" value="发 送" class="input_sub" />
+    </div>
+  </div>
+
+
+</body>
+
+<script type="text/javascript" src="js/scroll.js"></script>
+<!-- <script src="./js/scroll.js"></script>
+<script src="./js/jquery-1.12.4.min.js"></script> -->
+<!-- 导入模板引擎 -->
+<script src="./js/template-web.js"></script>
+<!-- 1.1准备自己的模板 -->
+<script id="self" type="text/html">
+  <li class="right_word">
+    <img src="img/person002.png"> <span>{{info}}</span>
+  </li>
+</script>
+
+
+<!-- 1.2准备知心姐姐的模板 -->
+<script id="sister" type="text/html">
+  <li class="left_word">
+    <img src="img/person001.png"> <span>{{text}}</span>
+  </li>
+</script>
+
+<!-- 2.用Ajax准备数据 -->
+<script>
+  $(function () {
+    //  请求地址：http://www.tuling123.com/openapi/api
+    //  请求方法：post
+    //  请求参数：key,info
+    //  key	申请的机器人 key	不能为空
+    //  info	要跟机器人聊的内容	
+    //  测试用 key：如果次数都用完了建议自己注册一个机器人即可，免费的
+    //  
+    //  2162602fd87240a8b7bba7431ffd379b
+    //  a618e456f0744066840ceafb6a249d9d
+    //  d7c82ebd8b304abeacc73b366e42b9ed
+    //  7b1cf467c0394dd5b3e49f32663f8b29
+    //  9fbb98effab142c9bb324f804be542ba
+    function chat() {
+      //获取输入框内容
+      var info = $('.input_txt').val()
+      //输入框不得为空
+      if (info == '') {
+        alert('对话内容不得为空噢')
+        return;
+      }
+      //把内容放在一个对象里面，方便写进“自己模板”
+      var obj = {
+        info: info
+      }
+      var key = '9fbb98effab142c9bb324f804be542ba';
+      console.log(obj);
+      //点击发送时，清空文本框
+      $('.input_txt').val('')
+      var selfHtml = template('self', obj)
+      $('.talk_list').append(selfHtml)
+      resetui()
+
+      $.ajax({
+        url: 'http://www.tuling123.com/openapi/api',
+        data: {
+          key: key,
+          info: info
+        },
+        type: 'get',
+        // dataType:'json',
+        success: function (backData) {
+          console.log(backData);
+          var html = template('sister', backData)
+          $('.talk_list').append(html)
+          resetui()
+        }
+      })
+    }
+    $('.input_sub').on('click', function () {
+
+      chat()
+
+    })
+
+    $('.input_txt').keyup(function (e) {
+      if (e.keyCode == 13) {
+        chat()
+
+      }
+    })
+  })
+</script>
+
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/main.css" />
+    <script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/vue2.0.js"></script>
+    <title>聊天机器人</title>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <h3>知心姐姐</h3>
+        <img src="img/person01.png" alt="icon" />
+      </div>
+      <div class="main">
+        <ul class="talk_list" style="top: 0px;"></ul>
+        <div class="drag_bar" style="display: none;">
+          <div
+            class="drager ui-draggable ui-draggable-handle"
+            style="display: none; height: 412.628px;"
+          ></div>
+        </div>
+      </div>
+      <div class="footer">
+        <img src="img/person02.png" alt="icon" />
+        <input type="text" placeholder="说的什么吧..." class="input_txt" />
+        <input type="button" value="发 送" class="input_sub" />
+      </div>
+    </div>
+    <script type="text/javascript" src="js/scroll.js"></script>
+    <!-- 导入模板引擎 -->
+    <script src="./js/template-web.js"></script>
+    <script id="right" type="text/html">
+      <li class="right_word">
+          <img src="img/person02.png" /> <span>{{text}}</span>
+        </li>
+    </script>
+    <script id="left" type="text/html">
+      <li class="left_word">
+          <img src="img/person01.png" /> <span>{{text}}</span>
+        </li>
+    </script>
+    <script>
+      $(function() {
+        // 初始化右侧滚动条
+        // 这个方法定义在scroll.js中
+        // 点击发送聊天
+        $('.input_sub').click(function() {
+          // 获取输入的内容
+          var str = $('.input_txt').val()
+          // 非空判断
+          if (str == '') {
+            alert('写点东西呗!')
+            return
+          }
+          // 生成自己的结构
+          var html = template('right', { text: str })
+          // 生成自己的结构
+          $('.talk_list').append(html)
+          // 初始化页面
+          resetui()
+          // 跟姐姐聊天
+          $.ajax({
+            url: 'http://www.tuling123.com/openapi/api',
+            type: 'post',
+            data: {
+              key: '2162602fd87240a8b7bba7431ffd379b',
+              info: str
+            },
+            success: backData => {
+              // 生成页面结构
+              var html = template('left', backData)
+              $('.talk_list').append(html)
+              // 页面滚动
+              resetui()
+            }
+          })
+          // 清空内容
+          $('.input_txt').val('')
+        })
+      })
+    </script>
+  </body>
+</html>

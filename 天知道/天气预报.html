@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>天知道</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/iconfont.css" />
+  <link rel="stylesheet" href="css/main2.css" />
+  <script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+  <style>
+    .tem .iconfont {
+      font-size: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <p>定位到您所在的城市，点击查询天气：<a href="javascript:;" id="local"></a></p>
+    <a id="ip" href="javascript:;">点击查询IP地址：</a><span></span>
+
+    <div class="search_form">
+      <div class="logo"><img src="img/logo.png" alt="logo" /></div>
+      <div class="form_group">
+        <input type="text" class="input_txt" placeholder="请输入查询的天气" />
+        <button class="input_sub">搜 索</button>
+      </div>
+      <div class="hotkey">
+        <a href="javascript:;">北京</a><a href="javascript:;">上海</a><a href="javascript:;">广州</a><a
+          href="javascript:;">深圳</a>
+      </div>
+    </div>
+    <ul class="weather_list">
+    </ul>
+
+
+  </div>
+  <!-- 导入搜狐api获取IP地址 -->
+  <script src="http://pv.sohu.com/cityjson"></script>
+  <script src="./js/jquery-1.12.4.min.js"></script>
+
+  <!-- 导包 -->
+  <script src="./js/template-web.js"></script>
+
+  <!-- 准备模板 -->
+  <script id="tem" type="text/html">
+    {{each data.forecast}}
+    <li>
+      <div class="info_type">
+        {{if $value.type.indexOf('雨')!=-1}}
+        <!-- 雨 -->
+        <span class="iconfont">&#xe932;</span>
+
+        {{else if $value.type.indexOf('晴')!=-1}}
+        <!-- 晴 -->
+        <span class="iconfont">&#xe933;</span>
+        {{else if $value.type.indexOf('雨夹雪')!=-1}}
+        <!-- 雨夹雪 -->
+        <span class="iconfont">&#xe934;</span>
+        {{else if $value.type.indexOf('阴')!=-1}}
+        <!-- 阴 -->
+        <span class="iconfont">&#xe92d;</span>
+        {{else if $value.type.indexOf('风')!=-1}}
+        <!-- 风 -->
+        <span class="iconfont">&#xeb8c;</span>
+        {{else if $value.type.indexOf('雪')!=-1}}
+        <!-- 雪 -->
+        <span class="iconfont">&#xeb87;</span>
+        {{else if $value.type.indexOf('多云')!=-1}}
+        <!-- 多云 -->
+        <span class="iconfont">&#xeb79;</span>
+        {{else if $value.type.indexOf('雷')!=-1}}
+        <!-- 雷 -->
+        <span class="iconfont">&#xeb77;</span>
+        {{else if $value.type.indexOf('冰雹')!=-1}}
+        <!-- 冰雹 -->
+        <span class="iconfont">&#xeb76;</span>
+        {{else if $value.type.indexOf('雾霾')!=-1}}
+        <!-- 雾霾 -->
+        <span class="iconfont">&#xeb75;</span>
+        {{/if}}
+      </div>
+      <div class="info_temp">高 <b>{{$value.high.split(' ')[1]}}</b><br />低 {{$value.low.split(' ')[1]}}</div>
+      <div class="info_date"><b>{{$value.type}}</b><span>{{$value.date}}</span></div>
+    </li>
+    {{/each}}
+  </script>
+
+  <!-- 准备数据 -->
+  <script>
+    // ajax
+    // 请求地址：http://wthrcdn.etouch.cn/weather_mini
+    // 请求方法：get
+    // 请求参数：city
+
+    //注册点击‘搜索’事件
+    $(function () {
+      function checkWeather() {
+        $('.input_sub').addClass('loading')
+        $('.weather_list').empty()
+        //获取文本框的内容，
+        var city = $('.input_txt').val();
+        //调用jQuery的Ajax方法
+        $.ajax({
+          url: 'http://wthrcdn.etouch.cn/weather_mini',
+          data: 'city=' + city,
+          type: 'get',
+          dataType: 'json',
+          success: function (returnDate) {
+            console.log(returnDate);
+            var html = template('tem', returnDate)
+            setTimeout(function () {
+              $('.weather_list').html(html)
+              $('.input_sub').removeClass('loading')
+            }, 1500)
+          }
+        })
+      }
+
+      //获取IP地址
+      var ipAdress = returnCitySN["cip"]
+      $('#ip').click(function(){
+        $('#ip').next('span').html(ipAdress);
+      })
+
+      //打开浏览器默认显示定位城市天气
+      //百度API获取城市
+      $(window).load(function () {
+
+        //通过ip地址获取到当前位置
+        $.ajax({
+          url: 'https://api.map.baidu.com/location/ip?ak=OkQCdfFYTwGXgtHEjdxtEj28XTBo9uSd',
+          // data: 'ak=OkQCdfFYTwGXgtHEjdxtEj28XTBo9uSd', //接口地址
+          // data:{},//数据可以写对象
+          type: 'POST', //请求的方法POST/GET
+          dataType: 'jsonp',
+          success: function (backData) {
+            // var html = template('id名', backData) //回调函数
+            // $(selector).html(html) //模板插入位置
+            // console.log(backData.address.split('|')[2]);
+            console.log(backData.address.split('|')[2]);
+            
+            var local=$('#local').html(backData.address.split('|')[2])
+            // var local = document.getElementById('local').innerHTML.split('市')[0]
+            
+            console.log(local);
+
+          },
+        })
+
+        // $('.input_txt').val('北京');
+        // checkWeather();
+      })
+      // $('#local').split('市').eq(0).css('color','red')
+      // var local =document.getElementById('local')
+      // var localCity=local.innerHTML
+      // console.log(localCity);
+      // localCity=
+
+      $('#local').click(function () {
+        console.log($(this));
+        
+        $('.input_txt').val($('#local').text());
+        checkWeather();
+
+      })
+
+
+      $('.input_sub').on('click', function () {
+        checkWeather();
+      })
+      $('.input_txt').keyup(function (e) {
+        if (e.keyCode == 13) {
+          checkWeather();
+        }
+      })
+
+      $('.hotkey a').click(function () {
+        $('.input_txt').val($(this).text());
+        checkWeather();
+      })
+
+    })
+  </script>
+</body>
+
+</html>

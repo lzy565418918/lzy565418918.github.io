@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>天知道</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/iconfont.css" />
+    <link rel="stylesheet" href="css/main2.css" />
+
+    <style>
+      .tem .iconfont {
+        font-size: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="search_form">
+        <div class="logo"><img src="img/logo.png" alt="logo" /></div>
+        <div class="form_group">
+          <input type="text" class="input_txt" placeholder="请输入查询的天气" />
+          <button class="input_sub ">搜 索</button>
+        </div>
+        <div class="hotkey">
+          <a href="javascript:;" onclick="seachWeather('北京')">北京</a
+          ><a href="javascript:;" onclick="seachWeather('上海')">上海</a
+          ><a href="javascript:;" onclick="seachWeather('广州')">广州</a
+          ><a href="javascript:;" onclick="seachWeather('深圳')">深圳</a>
+        </div>
+      </div>
+      <ul class="weather_list">
+        <li>
+          <div class="info_type">
+            <span class="iconfont">&#xe932;</span>
+          </div>
+          <div class="info_temp">高 <b>32℃</b><br />低 32℃</div>
+          <div class="info_date"><b>深圳</b><span>5月19日</span></div>
+        </li>
+      </ul>
+    </div>
+    <!-- 导入jq -->
+    <script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+    <!-- 导入模板引擎 -->
+    <script src="./js/template-web.js"></script>
+    <!-- 定义模板 -->
+    <script id="weather" type="text/html">
+      {{each data.forecast}}
+      <li>
+          <div class="info_type">
+            {{ if $value.type.indexOf('大雨')!=-1}}
+              <!-- 大雨 -->
+              <span class="iconfont">&#xe931;</span>
+
+            {{else if $value.type.indexOf('晴')!=-1}}
+              <!-- 晴 -->
+              <span class="iconfont">&#xe933;</span>
+            {{else if $value.type.indexOf('雨夹雪')!=-1}}
+              <!-- 雨夹雪 -->
+              <span class="iconfont">&#xe934;</span>
+            {{else if $value.type.indexOf('阴')!=-1}}
+              <!-- 阴 -->
+              <span class="iconfont">&#xe92d;</span>
+            {{else if $value.type.indexOf('风')!=-1}}
+              <!-- 风 -->
+              <span class="iconfont">&#xeb8c;</span>
+            {{else if $value.type.indexOf('雪')!=-1}}
+              <!-- 雪 -->
+              <span class="iconfont">&#xeb87;</span>
+            {{else if $value.type.indexOf('云')!=-1}}
+              <!-- 云 -->
+              <span class="iconfont">&#xeb79;</span>
+            {{else if $value.type.indexOf('雷')!=-1}}
+              <!-- 雷 -->
+              <span class="iconfont">&#xeb77;</span>
+            {{else if $value.type.indexOf('雹')!=-1}}
+              <!-- 雹 -->
+              <span class="iconfont">&#xeb76;</span>
+            {{else if $value.type.indexOf('雾')!=-1}}
+              <!-- 雾 -->
+              <span class="iconfont">&#xeb75;</span>
+            {{else if $value.type.indexOf('雨')!=-1}}
+              <!-- 雨 -->
+              <span class="iconfont">&#xe932;</span>
+            {{/if}}
+
+          </div>
+          <div class="info_temp">高 <b>{{ $value.high.split(' ')[1] }}</b><br />低 {{ $value.low.split(' ')[1] }}</div>
+          <div class="info_date"><b>{{$value.type}}</b><span>{{$value.date}}</span></div>
+        </li>
+      {{/each}}
+    </script>
+
+    <script>
+      // 抽取天气查询为方法
+      function seachWeather(city) {
+        // 获取value值
+        $('.input_txt').val(city)
+        var city = $('.input_txt').val()
+        // 增加loaing
+        $('.input_sub').addClass('loading')
+        // 清空内容
+        $('.weather_list').html('')
+        // 调用接口
+        $.ajax({
+          url: 'http://wthrcdn.etouch.cn/weather_mini',
+          data: {
+            city: city
+          },
+          dataType: 'json',
+          type: 'get',
+          success: function(backData) {
+            // 移除loading
+            setTimeout(() => {
+              $('.input_sub').removeClass('loading')
+              $('.weather_list').html(template('weather', backData))
+            }, 1000)
+          }
+        })
+      }
+
+      $(function() {
+        // 点击搜索查询结果
+        $('.input_sub').click(function() {
+          
+          // 获取value值
+          var city = $('.input_txt').val()
+          // 调用方法
+          seachWeather(city)
+        })
+        // 按下回车搜索结果
+        $('.input_txt').keyup(function(e) {
+          if (e.keyCode == 13) {
+            // 获取value值
+            var city = $(this).val()
+            // 调用方法
+            seachWeather(city)
+          }
+        })
+      })
+    </script>
+  </body>
+</html>

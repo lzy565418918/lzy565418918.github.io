@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        .name {
+            color: deepskyblue;
+        }
+
+        .title {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>英雄查询</h1>
+    <input type="text" placeholder="请输入查询的名字" class="hero" />
+    <input type="button" value="英雄查询" class="search" />
+    <h2><span class="name"></span>---<span class="title"></span></h2>
+</body>
+
+</html>
+<script src="./jquery-1.12.4.min.js"></script>
+<script>
+    /*
+    请求地址：https://autumnfish.cn/api/hero/simple
+
+    请求方法：get
+
+    请求参数：name
+
+  步骤
+
+  1. 查询按钮绑定 点击事件
+  2. 获取文本框 的value
+  3. 把value添加下面的左边
+  4. 右边显示为  加载中..
+  5. 通过ajax调用 接口
+  6. 数据回来之后显示在右边
+  */
+    $('.search').on('click', function () {
+        var name = $('.hero').val();
+        $(".name").text(name);
+        $(".title").text('加载中...');
+        // 1.实例化ajax对象 (小黄人对象)
+        var xhr = new XMLHttpRequest()
+        // 2.设置请求的方法和地址
+        xhr.open('get', 'https://autumnfish.cn/api/hero/simple?name=' + name)
+        // 3.设置请求头(post才需要)
+        // xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+        // 4.注册回调函数
+        xhr.onload = function () {
+            $(".title").text(xhr.responseText)
+        }
+        // 5.发送请求 post的数据在send中发送
+        xhr.send()
+
+
+    })
+</script>
