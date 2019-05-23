@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/index.css" />
+    <style>
+      body {
+        /* background-image: url('http://img.badapple.top/东方Project/十六夜咲夜/img (7).jpg') */
+      }
+    </style>
+  </head>
+  <body>
+    <img src="./img/header.png" alt="" class="header" />
+    <div class="cq-wrap">
+      <!-- 导航 -->
+      <div class="nav">
+        <ul>
+          <li><img src="./img/sword.png" alt="" /><span>剑士</span></li>
+          <li><img src="./img/knight.png" alt="" /> <span>骑士</span></li>
+          <li><img src="./img/Archer.png" alt="" /> <span>弓手</span></li>
+          <li><img src="./img/hunter.png" alt="" /> <span>猎人</span></li>
+          <li><img src="./img/magic.png" alt="" /> <span>法师</span></li>
+          <li><img src="./img/flamen.png" alt="" /> <span>祭司</span></li>
+        </ul>
+      </div>
+      <!-- table -->
+      <table class="cq-list">
+        <thead>
+          <th>勇士</th>
+          <th>技能</th>
+          <th>武器</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <img
+                class="icon"
+                src="http://p6.qhimg.com/dr/72__/t01b8063ea608652431.png"
+                alt=""
+              />
+              <span>
+                涅斯军长官尤莉娅
+              </span>
+            </td>
+            <td>
+              <img
+                class="skill"
+                src="http://p9.qhimg.com/dr/52__/t01087d8e61575ab25d.png"
+                alt=""
+              />
+              注射!
+            </td>
+            <td>
+              <img
+                class="weapon"
+                src="http://p6.qhimg.com/dr/45__/t0178ac936dcb72650f.png"
+                alt=""
+              />
+              疫苗-G
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- 遮罩层 -->
+    <div class="cover" style="display: none">
+      <img class="loading" src="./img/loading01.gif" alt="" />
+    </div>
+  </body>
+</html>
+<script src="./js/jquery-1.12.4.min.js"></script>
+<!-- 导入模板引擎 -->
+<script src="./js/template-web.js"></script>
+<!-- 准备模板 -->
+<script type="text/html" id="hero">
+  {{each data.heros}}
+    <tr>
+        <td>
+          <img class="icon" src="{{$value.heroIcon}}" alt="">
+          <span>{{$value.heroName}}</span>
+        </td>
+        <td>
+          <img class="skill" src="{{$value.skillIcon}}" alt="">
+          {{$value.skillName}}
+        </td>
+        <td>
+          <img class="weapon" src="{{$value.weaponIcon}}" alt="">
+          {{$value.weaponName}}
+        </td>
+      </tr>
+  {{/each}}
+</script>
+<script>
+  /*
+    随机背景图
+    - 请求地址:http://acg.bakayun.cn/randbg.php
+    - 请求方法：get
+    - 请求参数：Type,t,https
+    步骤
+    1. 打开网页之后，调用随机二次元图片的接口
+    2. 数据获取到之后设置给body的背景图即可
+    3. 使用定时器间隔获取即可
+
+    点击高亮tab
+      步骤
+
+      1. 绑定点击事件，那一排tab
+      2. 为点击的添加 active  类
+      3. 移除他兄弟的 active 类
+      4. 默认点中第一个 调用第一个的点击事件
+
+    底部内容跟随tab切换
+
+    - 请求地址：https://autumnfish.cn/api/cq/category
+    - 请求方法：get
+    - 请求参数：type，剑士，骑士，弓手，猎人，法师，祭司 
+
+    步骤
+
+    1. tab的点击事件中 ajax调用接口
+    2. 数据回来之后渲染到页面上
+
+    点击头像看酷炫效果
+
+    - 请求地址：https://autumnfish.cn/api/cq/gif
+    - 请求方法：get
+    - 请求参数：name
+
+    步骤
+
+    1. 点击英雄头像
+    2. 弹出遮罩层  有loading动画
+    3. 获取该英雄对应的gif图
+    4. 获取到之后，设置到遮罩层中的img的src上即可
+    5. 双击关闭遮罩层
+
+
+  */
+  $(function() {
+    // 抽取获取背景图的方法
+    function getRandomImg() {
+      // 获取随机背景图
+      $.ajax({
+        url: 'http://acg.bakayun.cn/randbg.php',
+        type: 'get',
+        data: {
+          Type: 'json',
+          t: 'dfproject'
+        },
+        dataType: 'json',
+        success: function(backData) {
+          console.log(backData)
+          // 设置给body的背景
+          // http://img.badapple.top/东方Project/十六夜咲夜/img (7).jpg
+          // $('body').css('background-image','url('+backData.ImgUrl+')')
+          // 拼接字符串时先写结果，再拆分
+          $('body').css('background-image', 'url("' + backData.ImgUrl + '")')
+        }
+      })
+    }
+    // 默认调用一次
+    getRandomImg()
+    // 定时器间隔调用
+    setInterval(function() {
+      getRandomImg()
+    }, 30000)
+
+    // 点击高亮 tab
+    $('.nav li').click(function() {
+      $(this)
+        .addClass('active')
+        .siblings()
+        .removeClass('active')
+
+      // ajax调用 接口
+      var type = $(this)
+        .children('span')
+        .text()
+      $.ajax({
+        url: 'https://autumnfish.cn/api/cq/category',
+        type: 'get',
+        data: {
+          type: type
+        },
+        success: function(backData) {
+          console.log(backData)
+          // 调用方法
+          var html = template('hero', backData)
+          // 设置到页面上
+          $('tbody').html(html)
+        }
+      })
+    })
+    // 默认点击第一个
+    // 等同于 :first
+    $('.nav li')
+      .first()
+      .click()
+
+    // 点击查询技能图画
+    // icon是动态生成的 这里使用事件委托
+    // $('.icon').click(function(){
+    $('tbody').on('click', '.icon', function() {
+      // 获取英雄
+      var name = $(this)
+        .next('span')
+        .text()
+      // console.log(name)
+      // 弹出遮罩层
+      $('.cover').show()
+      // 调用 接口
+      $.ajax({
+        url: 'https://autumnfish.cn/api/cq/gif',
+        type: 'get',
+        data: {
+          name: name
+        },
+        success: function(backData) {
+          // console.log(backData);
+          // 设置技能图片
+          $('.cover .loading').attr('src', backData.data.skillGif)
+        }
+      })
+    })
+
+    // 双击关闭遮罩层
+    $('.cover').click(function() {
+      $(this).fadeOut(function() {
+        $('.cover .loading').attr('src', './img/loading01.gif')
+      })
+    })
+  })
+</script>

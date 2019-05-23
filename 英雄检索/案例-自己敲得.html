@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Document</title>
+  <link rel="stylesheet" href="./css/index.css" />
+</head>
+
+<body>
+  <img src="./img/header.png" alt="" class="header" />
+  <div class="cq-wrap">
+    <!-- 导航 -->
+    <div class="nav">
+      <ul>
+        <li><img src="./img/sword.png" alt="" /><span>剑士</span></li>
+        <li><img src="./img/knight.png" alt="" /> <span>骑士</span></li>
+        <li><img src="./img/Archer.png" alt="" /> <span>弓手</span></li>
+        <li><img src="./img/hunter.png" alt="" /> <span>猎人</span></li>
+        <li><img src="./img/magic.png" alt="" /> <span>法师</span></li>
+        <li><img src="./img/flamen.png" alt="" /> <span>祭司</span></li>
+      </ul>
+    </div>
+    <!-- table -->
+    <table class="cq-list">
+      <thead>
+        <th>勇士</th>
+        <th>技能</th>
+        <th>武器</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <img class="icon" src="http://p6.qhimg.com/dr/72__/t01b8063ea608652431.png" alt="" />
+            <span>
+              涅斯军长官尤莉娅
+            </span>
+          </td>
+          <td>
+            <img class="skill" src="http://p9.qhimg.com/dr/52__/t01087d8e61575ab25d.png" alt="" />
+            注射!
+          </td>
+          <td>
+            <img class="weapon" src="http://p6.qhimg.com/dr/45__/t0178ac936dcb72650f.png" alt="" />
+            疫苗-G
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- 遮罩层 -->
+  <div class="cover" style="display: none">
+    <img class="loading" src="./img/loading01.gif" alt="" />
+  </div>
+</body>
+
+</html>
+<!-- 导入jQuery文件 -->
+<script src="./js/jquery-1.12.4.min.js"></script>
+
+<!-- 导入模板引擎 -->
+<script src="./js/template-web.js"></script>
+
+<!-- 准备一个模板 -->
+<script id="tem" type="text/html">
+  {{each data.heros}}
+  <tr>
+    <td>
+      <img class="icon" src="{{$value.heroIcon}}" alt="">
+      <span>{{$value.heroName}}</span>
+    </td>
+    <td>
+      <img class="skill" src="{{$value.skillIcon}}" alt="">{{$value.skillName}}</td>
+    <td>
+      <img class="weapon" src="{{$value.weaponIcon}}" alt="">{{$value.weaponName}}</td>
+  </tr>
+  {{/each}}
+</script>
+
+
+<script>
+  // 随机背景图
+  //   - 请求地址:http://acg.bakayun.cn/randbg.php
+  //   - 请求方法：get
+  //   - 请求参数：Type,t,https
+
+
+  // - 请求地址：https://autumnfish.cn/api/cq/category
+  //   - 请求方法：get
+  //   - 请求参数：type，剑士，骑士，弓手，猎人，法师，祭司 
+
+
+
+  // 入口函数
+  $(function () {
+    //先设置随机背景图吧，
+    function randomBackground() {
+      $.ajax({
+        url: 'http://acg.bakayun.cn/randbg.php',
+        data: {
+          Type: 'json',
+          t: 'dfproject'
+        },
+        type: 'GET',
+        dataType: 'json',
+        success: function (backData) {
+          // console.log(backData);
+          $('body').css('background', 'url("' + backData.ImgUrl + '") no-repeat center center')
+        }
+      })
+    }
+    //默认先调用一次
+    randomBackground()
+    //用定时器，每6秒换一张图片
+    setInterval(function () {
+      randomBackground()
+    }, 6000)
+
+ 
+  
+
+    //tab栏点击切换设置
+    $('.nav>ul>li').on('click', function () {
+      //点击添加active类，其他兄弟元素取消active类
+      $(this).addClass('active').siblings().removeClass('active')
+      //获取参数值
+      var type = $(this).find('span').text()
+      // console.log(type);
+      $.ajax({
+        url: 'https://autumnfish.cn/api/cq/category', //接口地址
+        data: {
+          type: type
+        }, //数据可以写对象
+        type: 'GET', //请求的方法POST/GET
+        dataType: 'json',
+        success: function (backData) {
+          console.log(backData);
+
+          var html = template('tem', backData) //回调函数
+          $('tbody').html(html) //模板插入位置
+        },
+      })
+      })
+
+    //进入网页默认选中第一个tab
+    $('.nav>ul>li').first().click()
+
+    //给英雄头像添加点击事件，点击时弹出技能动图预览
+
+    //因为是动态创建的内容，所以用事件委托
+    $('tbody').on('click','.icon',function () {
+      //       角色技能动态图查询
+      // 请求地址：https://autumnfish.cn/api/cq/gif
+      // 请求方法：get
+      // 请求参数：name
+      // 响应内容：JSON
+      //获取英雄名
+      // console.log(this);
+      
+      var name = $(this).next('span').text()
+      // console.log(name);
+
+      //显示加载中
+      $('.cover').show()
+
+      
+      $.ajax({
+        type: "GET",
+        url: "https://autumnfish.cn/api/cq/gif",
+        data: {
+          name:name
+        },
+        // type:'json',
+        // dataType: "dataType",
+        success: function (response) {
+          console.log(response);
+          //收到数据后加载完成，把链接换掉
+          $('.loading').attr('src',response.data.skillGif)
+
+        }
+      });
+    })
+
+    //点击遮罩层隐藏，并把‘加载中。。。’的动画链接还原
+    $('.cover').on('click',function(){
+      $(this).fadeOut(function(){
+        $(this).find('img').attr('src','./img/loading01.gif')
+      })
+    })
+  })
+</script>
